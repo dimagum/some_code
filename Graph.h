@@ -5,10 +5,18 @@
 
 using namespace std;
 
-
+/*!
+ * \brief Это граф!
+ * @tparam key_type
+ * @tparam value_type
+ * @tparam weight_type
+ */
 template<typename key_type, typename value_type, typename weight_type>
 class Graph {
 
+    /*!
+     *
+     */
     class Node {
         value_type val;
 
