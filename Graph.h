@@ -1,6 +1,8 @@
 #pragma once
 
 #include <map>
+#include <limits>
+#include <algorithm>
 
 
 using namespace std;
@@ -23,7 +25,7 @@ template<typename key_type, typename value_type, typename weight_type>
 class Graph {
 
     /*!
-     *
+     * \brief Узел (внутренний класс)
      */
     class Node {
     public:
@@ -131,6 +133,10 @@ public:
 
     Graph& operator=(Graph&& rhs) noexcept = default;
 
+    /*!
+     * \brief Итератор begin()
+     * @return bool
+     */
     bool empty() const {
         return graph.empty();
     }
@@ -225,6 +231,14 @@ public:
         }
 
         return graph[key];
+    }
+
+    const Node& operator[](key_type key) const {
+        if (graph.find(key) == graph.end()) {
+            throw logic_error("no such node.\n");
+        }
+
+        return graph.at(key);
     }
 
     Node& at(key_type key) {
@@ -330,8 +344,67 @@ public:
         graph.erase(key);
         return true;
     }
-
-
 };
 
+template<typename weight_t, typename route_t, typename graph_t, typename node_type_t>
+pair<weight_t, route_t> dijkstra(const graph_t& graph, node_type_t key_from, node_type_t key_to) {
+    graph[key_from];
+    graph[key_to];
 
+    map<node_type_t, weight_t> d;
+    map<node_type_t, bool> u;
+
+    for (auto [key, node] : graph) {
+        d[key] = numeric_limits<weight_t>::max();
+        u[key] = false;
+    }
+
+    d[key_from] = 0;
+
+    map<node_type_t, node_type_t> possible;
+    possible[key_from] = numeric_limits<node_type_t>::max();
+
+    for (auto i = 0; i < graph.size(); i++) {
+        node_type_t v = -1;
+
+        for (auto [key, node] : graph) {
+            if (!u[key] && (v == -1 || d[key] < d[v])) {
+                v = key;
+            }
+        }
+
+        if (d[v] == numeric_limits<weight_t>::max()) {
+            break;
+        }
+
+        for (auto [to, len] : graph[v]) {
+            if (len < 0) {
+                throw logic_error("negative weight.\n");
+            }
+            if (d[v] + len < d[to]) {
+                d[to] = d[v] + len;
+                possible[to] = v;
+            }
+        }
+
+        u[v] = true;
+
+    }
+
+    if (d[key_to] == numeric_limits<weight_t>::max()) {
+        throw logic_error("no route.\n");
+    }
+
+    route_t route;
+
+    for (auto key = key_to; possible[key] < numeric_limits<node_type_t>::max(); ) {
+        route.push_back(key);
+        key = possible[key];
+    }
+
+    route.push_back(key_from);
+    reverse(route.begin(), route.end());
+
+
+    return pair<weight_t, route_t>(d[key_to], route);
+}

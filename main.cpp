@@ -1,5 +1,6 @@
 #include <iostream>
-#include "Graph.h"
+#include <Matrix_file.h>
+#include <Graph.h>
 
 
 template<typename Graph>
@@ -137,6 +138,60 @@ int main() {/*
     print(graph);
     graph.clear(); // Очистить все вершины (очевидно, вместе с рёбрами)
     print(graph);
+
+    Graph<int, int, double> g;
+    g.insert_node(0, 0);
+    g.insert_node(1, 0);
+    g.insert_node(2, 0);
+    g.insert_node(3, 0);
+    g.insert_node(4, 0);
+
+    g.insert_edge({0, 0}, 5);
+    g.insert_edge({1, 3}, 2);
+    g.insert_edge({2, 0}, 1.2);
+    g.insert_edge({2, 3}, 15);
+    g.insert_edge({2, 4}, 10.5);
+    g.insert_edge({3, 1}, 3);
+    g.insert_edge({4, 1}, 8);
+    g.insert_edge({4, 3}, 1);
+
+    auto [distance, route] = dijkstra<double, vector<int>, Graph<int, int, double>, int>(g, 2, 1);
+
+    cout << distance << "\n";
+
+    for (auto item : route) {
+        cout << item << " ";
+    }
+    cout << "\n";
+
+    try {
+        auto [weight1, route1] = dijkstra<double, vector<int>, Graph<int, int, double>, int>(g, 2, 5);
+    }
+    catch (const std::exception& e) {
+        std::cout << e.what() << "\n";
+    }
+
+    g.insert_edge({4, 0}, -1.4);
+
+    try {
+        auto [weight2, route2] = dijkstra<double, vector<int>, Graph<int, int, double>, int>(g, 2, 1);
+    }
+    catch (const std::exception& e) {
+        std::cout << e.what() << "\n";
+    }
+
+    g.erase_edges_go_from(4);
+    g.insert_edge({4, 3}, 1);
+    g.insert_edge({4, 1}, 8);
+
+    g.insert_node(5, 7);
+
+    try {
+        auto [weight3, route3] = dijkstra<double, vector<int>, Graph<int, int, double>, int>(g, 2, 5);
+    }
+    catch (const std::exception& e) {
+        std::cout << e.what() << "\n";
+    }
 
     return 0;
 }
